@@ -6,11 +6,18 @@ const { notifSend } = notifActions;
 export const AUTH_REQUEST = 'AUTH_REQUEST';
 export const AUTH_SUCCESS = 'AUTH_SUCCESS';
 export const AUTH_FAILURE = 'AUTH_FAILURE';
+export const SHOW_AUTH_POPUP = 'SHOW_AUTH_POPUP';
 export const LOGOUT = 'LOGOUT';
 
 export function authenticating() {
   return {
     type: AUTH_REQUEST,
+  };
+}
+
+export function reAuth() {
+  return {
+    type: SHOW_AUTH_POPUP,
   };
 }
 
@@ -41,7 +48,7 @@ export function authenticateUser() {
     const state = getState();
     const backend = currentBackend(state.config);
     dispatch(authenticating());
-    return backend.currentUser()
+    return backend.currentUser(() => dispatch(reAuth()))
       .then((user) => {
         if (user) dispatch(authenticate(user));
       })
@@ -58,7 +65,7 @@ export function loginUser(credentials) {
     const backend = currentBackend(state.config);
 
     dispatch(authenticating());
-    return backend.authenticate(credentials)
+    return backend.authenticate(credentials, () => dispatch(reAuth()))
       .then((user) => {
         dispatch(authenticate(user));
       })

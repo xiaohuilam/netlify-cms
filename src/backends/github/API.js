@@ -7,7 +7,8 @@ import { SIMPLE, EDITORIAL_WORKFLOW, status } from "../../constants/publishModes
 import { APIError, EditorialWorkflowError } from "../../valueObjects/errors";
 
 export default class API {
-  constructor(config) {
+  constructor(config, reAuth) {
+    this.reAuth = reAuth;
     this.api_root = config.api_root || "https://api.github.com";
     this.token = config.token || false;
     this.branch = config.branch || "master";
@@ -79,6 +80,9 @@ export default class API {
       return response.text();
     })
     .catch((error) => {
+      if (responseStatus === 401) {
+        this.reAuth();
+      }
       throw new APIError(error.message, responseStatus, 'GitHub');
     });
   }

@@ -68,11 +68,11 @@ class Backend {
     }
   }
 
-  currentUser() {
+  currentUser(reAuth) {
     if (this.user) { return this.user; }
     const stored = this.authStore && this.authStore.retrieve();
     if (stored && (stored.backend === this.backendName)) {
-      return this.implementation.restoreUser(stored).then((user) => {
+      return this.implementation.restoreUser(stored, reAuth).then((user) => {
         this.authStore.store(user);
         return user;
       });
@@ -84,8 +84,8 @@ class Backend {
     return this.implementation.authComponent();
   }
 
-  authenticate(credentials) {
-    return this.implementation.authenticate(credentials).then((user) => {
+  authenticate(credentials, reAuth) {
+    return this.implementation.authenticate(credentials, reAuth).then((user) => {
       user.backend = this.backendName;
       if (this.authStore) { this.authStore.store(user); }
       return user;

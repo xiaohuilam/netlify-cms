@@ -97,7 +97,7 @@ class EntryPage extends React.Component {
   handlePersistEntry = () => {
     const { persistEntry, collection } = this.props;
     setTimeout(() => {
-      persistEntry(collection).then(() => this.handleCloseEntry());
+      persistEntry(collection).then(() => (!this.props.entryDraft.get('hasChanged') && this.handleCloseEntry()));
     }, 0);
   };
 
