@@ -30,7 +30,7 @@ export default class TestRepo {
     return AuthenticationPage;
   }
 
-  setUser(user) {
+  restoreUser(user) {
     return this.authenticate(user);
   }
   
