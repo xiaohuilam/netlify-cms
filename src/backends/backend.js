@@ -59,8 +59,9 @@ const slugFormatter = (template = "{{slug}}", entryData) => {
 };
 
 class Backend {
-  constructor(implementation, authStore = null) {
+  constructor(implementation, backendName, authStore = null) {
     this.implementation = implementation;
+    this.backendName = backendName;
     this.authStore = authStore;
     if (this.implementation === null) {
       throw new Error("Cannot instantiate a Backend with no implementation");
@@ -70,10 +71,11 @@ class Backend {
   currentUser() {
     if (this.user) { return this.user; }
     const stored = this.authStore && this.authStore.retrieve();
-    if (stored) {
+    if (stored && (stored.backend === this.backendName)) {
       return this.implementation.setUser(stored).then((user) => {
-        this.authStore.store(user);
-        return user;
+        // return confirmed/new user object instead of stored
+        this.authStore.store({...user, backend: this.backendName});
+        return {...user, backend: this.backendName};
       });
     }
     return Promise.resolve(null);
@@ -85,8 +87,8 @@ class Backend {
 
   authenticate(credentials) {
     return this.implementation.authenticate(credentials).then((user) => {
-      if (this.authStore) { this.authStore.store(user); }
-      return user;
+      if (this.authStore) { this.authStore.store({...user, backend: this.backendName}); }
+      return {...user, backend: this.backendName};
     });
   }
 
@@ -292,11 +294,11 @@ export function resolveBackend(config) {
 
   switch (name) {
     case "test-repo":
-      return new Backend(new TestRepoBackend(config), authStore);
+      return new Backend(new TestRepoBackend(config), name, authStore);
     case "github":
-      return new Backend(new GitHubBackend(config), authStore);
+      return new Backend(new GitHubBackend(config), name, authStore);
     case "git-gateway":
-      return new Backend(new GitGatewayBackend(config), authStore);
+      return new Backend(new GitGatewayBackend(config), name, authStore);
     default:
       throw new Error(`Backend not found: ${ name }`);
   }
