@@ -9,6 +9,7 @@ import styles from './AuthenticationPage.css';
 export default class AuthenticationPage extends React.Component {
   static propTypes = {
     onLogin: React.PropTypes.func.isRequired,
+    inProgress: React.PropTypes.bool.isRequired,
   };
 
   state = {};
@@ -32,6 +33,7 @@ export default class AuthenticationPage extends React.Component {
 
   render() {
     const { loginError } = this.state;
+    const { inProgress } = this.props;
 
     return (
       <section className={styles.root}>
@@ -40,9 +42,10 @@ export default class AuthenticationPage extends React.Component {
         <Button
           className={styles.button}
           raised
+          disabled={inProgress}
           onClick={this.handleLogin}
         >
-          <Icon type="github" /> Login with GitHub
+          <Icon type="github" /> {inProgress ? "Logging in..." : "Login with GitHub"}
         </Button>
       </section>
     );
