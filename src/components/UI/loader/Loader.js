@@ -1,6 +1,9 @@
 import React from 'react';
 import ReactCSSTransitionGroup from 'react-transition-group/CSSTransitionGroup';
-import styles from './Loader.css';
+import { prefixer } from '../../../lib/styleHelper';
+
+const styles = prefixer('loader');
+// import styles from './Loader.css';
 
 export default class Loader extends React.Component {
 
