@@ -40,6 +40,26 @@ const shortcodesAtRoot = {
   },
 };
 
-const rules = [ enforceNeverEmpty, shortcodesAtRoot ];
+/**
+ * Ensure that code blocks only contain a single text node with no ranges.
+ */
+const codeBlocksContainPlainText = {
+  match: node => node.type === 'code',
+  validate: node => {
+    const isValid = node.nodes.every(textNode => textNode.getMarks().isEmpty());
+    return isValid ? null : {};
+  },
+  normalize: (change, node) => {
+    const newTextNode = Text.create(node.text);
+    const newNode = Block.create({ type: 'code', nodes: [ newTextNode ] });
+    const parent = change.state.document.getParent(node.key);
+    const index = parent.get('nodes').findIndex(child => child.key === node.key);
+    return change
+      .removeNodeByKey(node.key)
+      .insertNodeByKey(parent.key, index, newNode);
+  },
+};
+
+const rules = [ enforceNeverEmpty, shortcodesAtRoot, codeBlocksContainPlainText ];
 
 export default rules;
